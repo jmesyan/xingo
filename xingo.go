@@ -1,27 +1,27 @@
 package xingo
 
 import (
-	_ "github.com/viphxin/xingo/fnet"
-	_ "github.com/viphxin/xingo/timer"
-	"github.com/viphxin/xingo/telnetcmd"
-	"github.com/viphxin/xingo/clusterserver"
-	"github.com/viphxin/xingo/sys_rpc"
-	"github.com/viphxin/xingo/utils"
-	"github.com/viphxin/xingo/fserver"
-	"github.com/viphxin/xingo/cluster"
-	"github.com/viphxin/xingo/logger"
 	"fmt"
-	"github.com/viphxin/xingo/iface"
+	"github.com/jmesyan/xingo/cluster"
+	"github.com/jmesyan/xingo/clusterserver"
+	_ "github.com/jmesyan/xingo/fnet"
+	"github.com/jmesyan/xingo/fserver"
+	"github.com/jmesyan/xingo/iface"
+	"github.com/jmesyan/xingo/logger"
+	"github.com/jmesyan/xingo/sys_rpc"
+	"github.com/jmesyan/xingo/telnetcmd"
+	_ "github.com/jmesyan/xingo/timer"
+	"github.com/jmesyan/xingo/utils"
 )
 
-func NewXingoTcpServer() iface.Iserver{
+func NewXingoTcpServer() iface.Iserver {
 	//do something
 	//debugport 是否开放
-	if utils.GlobalObject.DebugPort > 0{
-		if utils.GlobalObject.Host != ""{
+	if utils.GlobalObject.DebugPort > 0 {
+		if utils.GlobalObject.Host != "" {
 			fserver.NewTcpServer("telnet_server", "tcp4", utils.GlobalObject.Host,
 				utils.GlobalObject.DebugPort, 100, cluster.NewTelnetProtocol()).Start()
-		}else{
+		} else {
 			fserver.NewTcpServer("telnet_server", "tcp4", "127.0.0.1",
 				utils.GlobalObject.DebugPort, 100, cluster.NewTelnetProtocol()).Start()
 		}
@@ -30,7 +30,7 @@ func NewXingoTcpServer() iface.Iserver{
 	}
 
 	//add command
-	if utils.GlobalObject.CmdInterpreter != nil{
+	if utils.GlobalObject.CmdInterpreter != nil {
 		utils.GlobalObject.CmdInterpreter.AddCommand(telnetcmd.NewPprofCpuCommand())
 	}
 
@@ -38,12 +38,12 @@ func NewXingoTcpServer() iface.Iserver{
 	return s
 }
 
-func NewXingoMater(cfg string) *clusterserver.Master{
+func NewXingoMater(cfg string) *clusterserver.Master {
 	s := clusterserver.NewMaster(cfg)
 	//add rpc
 	s.AddRpcRouter(&sys_rpc.MasterRpc{})
 	//add command
-	if utils.GlobalObject.CmdInterpreter != nil{
+	if utils.GlobalObject.CmdInterpreter != nil {
 		utils.GlobalObject.CmdInterpreter.AddCommand(telnetcmd.NewPprofCpuCommand())
 		utils.GlobalObject.CmdInterpreter.AddCommand(telnetcmd.NewCloseServerCommand())
 		utils.GlobalObject.CmdInterpreter.AddCommand(telnetcmd.NewReloadCfgCommand())
@@ -51,13 +51,13 @@ func NewXingoMater(cfg string) *clusterserver.Master{
 	return s
 }
 
-func NewXingoCluterServer(nodename, cfg string) *clusterserver.ClusterServer{
-	s := clusterserver.NewClusterServer(nodename,cfg)
+func NewXingoCluterServer(nodename, cfg string) *clusterserver.ClusterServer {
+	s := clusterserver.NewClusterServer(nodename, cfg)
 	//add rpc
 	s.AddRpcRouter(&sys_rpc.ChildRpc{})
 	s.AddRpcRouter(&sys_rpc.RootRpc{})
 	//add cmd
-	if utils.GlobalObject.CmdInterpreter != nil{
+	if utils.GlobalObject.CmdInterpreter != nil {
 		utils.GlobalObject.CmdInterpreter.AddCommand(telnetcmd.NewPprofCpuCommand())
 	}
 	return s

@@ -2,20 +2,20 @@ package clusterserver
 
 import (
 	"fmt"
-	"github.com/viphxin/xingo/cluster"
-	"github.com/viphxin/xingo/fnet"
-	"github.com/viphxin/xingo/fserver"
-	"github.com/viphxin/xingo/iface"
-	"github.com/viphxin/xingo/logger"
-	"github.com/viphxin/xingo/utils"
+	"github.com/jmesyan/xingo/cluster"
+	"github.com/jmesyan/xingo/fnet"
+	"github.com/jmesyan/xingo/fserver"
+	"github.com/jmesyan/xingo/iface"
+	"github.com/jmesyan/xingo/logger"
+	"github.com/jmesyan/xingo/utils"
 	"net/http"
 	"os"
 	"os/signal"
 	"reflect"
 	"strings"
 	"sync"
-	"time"
 	"syscall"
+	"time"
 )
 
 type ClusterServer struct {
@@ -110,10 +110,10 @@ func NewClusterServer(name, path string) *ClusterServer {
 	}
 
 	//telnet debug tool
-	if serverconf.DebugPort > 0{
-		if serverconf.Host != ""{
+	if serverconf.DebugPort > 0 {
+		if serverconf.Host != "" {
 			GlobalClusterServer.TelnetServer = fserver.NewTcpServer("telnet_server", "tcp4", serverconf.Host, serverconf.DebugPort, 100, cluster.NewTelnetProtocol())
-		}else{
+		} else {
 			GlobalClusterServer.TelnetServer = fserver.NewTcpServer("telnet_server", "tcp4", "127.0.0.1", serverconf.DebugPort, 100, cluster.NewTelnetProtocol())
 		}
 	}
@@ -130,23 +130,23 @@ func (this *ClusterServer) StartClusterServer() {
 	if ok {
 		//api
 		if serverconf.NetPort > 0 {
-			for _, m := range modules[0].([]interface{}){
-				if m != nil{
+			for _, m := range modules[0].([]interface{}) {
+				if m != nil {
 					this.AddRouter(m)
 				}
 			}
 		}
 		//http
-		if len(serverconf.Http) > 0 || len(serverconf.Https) > 0{
-			for _, m := range modules[1].([]interface{}){
-				if m != nil{
+		if len(serverconf.Http) > 0 || len(serverconf.Https) > 0 {
+			for _, m := range modules[1].([]interface{}) {
+				if m != nil {
 					this.AddHttpRouter(m)
 				}
 			}
 		}
 		//rpc
-		for _, m := range modules[2].([]interface{}){
-			if m != nil{
+		for _, m := range modules[2].([]interface{}) {
+			if m != nil {
 				this.AddRpcRouter(m)
 			}
 		}
@@ -187,27 +187,27 @@ func (this *ClusterServer) StartClusterServer() {
 	//tcp server
 	if serverconf.NetPort > 0 {
 		utils.GlobalObject.TcpPort = serverconf.NetPort
-		if serverconf.Host != ""{
+		if serverconf.Host != "" {
 			this.NetServer = fserver.NewTcpServer("xingocluster_net_server", "tcp4", serverconf.Host, serverconf.NetPort,
 				utils.GlobalObject.MaxConn, utils.GlobalObject.Protoc)
-		}else{
+		} else {
 			this.NetServer = fserver.NewTcpServer("xingocluster_net_server", "tcp4", serverconf.Host, serverconf.NetPort,
 				utils.GlobalObject.MaxConn, utils.GlobalObject.Protoc)
 		}
 		this.NetServer.Start()
 	}
 	if serverconf.RootPort > 0 {
-		if serverconf.Host != ""{
+		if serverconf.Host != "" {
 			this.RootServer = fserver.NewTcpServer("xingocluster_root_server", "tcp4", serverconf.Host, serverconf.RootPort,
 				utils.GlobalObject.IntraMaxConn, utils.GlobalObject.RpcSProtoc)
-		}else{
+		} else {
 			this.RootServer = fserver.NewTcpServer("xingocluster_root_server", "tcp4", serverconf.Host, serverconf.RootPort,
 				utils.GlobalObject.IntraMaxConn, utils.GlobalObject.RpcSProtoc)
 		}
 		this.RootServer.Start()
 	}
 	//telnet
-	if this.TelnetServer != nil{
+	if this.TelnetServer != nil {
 		logger.Info(fmt.Sprintf("telnet tool start: %s:%d.", serverconf.Host, serverconf.DebugPort))
 		this.TelnetServer.Start()
 	}
@@ -227,7 +227,7 @@ func (this *ClusterServer) StartClusterServer() {
 		this.NetServer.Stop()
 	}
 
-	if this.TelnetServer != nil{
+	if this.TelnetServer != nil {
 		this.TelnetServer.Stop()
 	}
 	logger.Info("xingo cluster stoped.")
@@ -286,7 +286,7 @@ func (this *ClusterServer) ConnectToRemote(rname string) {
 }
 
 func (this *ClusterServer) AddRouter(router interface{}) {
-	if utils.GlobalObject.Protoc != nil{
+	if utils.GlobalObject.Protoc != nil {
 		//add api ---------------start
 		utils.GlobalObject.Protoc.AddRpcRouter(router)
 		//add api ---------------end
@@ -340,13 +340,13 @@ func (this *ClusterServer) GetRemote(name string) (*cluster.Child, error) {
 /*
 注册模块到分布式服务器
 */
-func (this *ClusterServer) AddModule(mname string, apimodule interface{},httpmodule interface{}, rpcmodule interface{}) {
+func (this *ClusterServer) AddModule(mname string, apimodule interface{}, httpmodule interface{}, rpcmodule interface{}) {
 	//this.modules[mname] = []interface{}{module, rpcmodule}
-	if _,ok := this.modules[mname]; ok{
+	if _, ok := this.modules[mname]; ok {
 		this.modules[mname][0] = append(this.modules[mname][0].([]interface{}), apimodule)
 		this.modules[mname][1] = append(this.modules[mname][1].([]interface{}), httpmodule)
 		this.modules[mname][2] = append(this.modules[mname][2].([]interface{}), rpcmodule)
-	}else{
+	} else {
 		this.modules[mname] = []interface{}{[]interface{}{apimodule}, []interface{}{httpmodule}, []interface{}{rpcmodule}}
 	}
 }

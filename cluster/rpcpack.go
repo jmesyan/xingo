@@ -3,12 +3,12 @@ package cluster
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/gob"
 	"errors"
 	"fmt"
-	"github.com/viphxin/xingo/fnet"
-	"github.com/viphxin/xingo/iface"
-	"encoding/gob"
-	"github.com/viphxin/xingo/logger"
+	"github.com/jmesyan/xingo/fnet"
+	"github.com/jmesyan/xingo/iface"
+	"github.com/jmesyan/xingo/logger"
 )
 
 type RpcData struct {

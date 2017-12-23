@@ -2,55 +2,55 @@ package telnetcmd
 
 import (
 	"fmt"
-	"github.com/viphxin/xingo/clusterserver"
+	"github.com/jmesyan/xingo/clusterserver"
 	"strconv"
 )
 
 type CloseServerCommand struct {
 }
 
-func NewCloseServerCommand() *CloseServerCommand{
+func NewCloseServerCommand() *CloseServerCommand {
 	return &CloseServerCommand{}
 }
-func (this *CloseServerCommand)Name()string{
+func (this *CloseServerCommand) Name() string {
 	return "closeserver"
 }
 
-func (this *CloseServerCommand)Help()string{
+func (this *CloseServerCommand) Help() string {
 	return fmt.Sprintf("closeserver:\r\n" +
 		"----------- all delay: 延迟delay秒时间关闭所有子节点\r\n" +
 		"----------- node name delay:  延迟delay秒时间关闭指定节点\r\n")
 }
 
-func (this *CloseServerCommand)Run(args []string) string{
-	if len(args) == 0{
+func (this *CloseServerCommand) Run(args []string) string {
+	if len(args) == 0 {
 		return this.Help()
-	}else{
+	} else {
 		switch args[0] {
 		case "all":
 			for _, child := range clusterserver.GlobalMaster.Childs.GetChilds() {
-				if len(args) > 1{
-					if v, err := strconv.ParseInt(args[1], 10, 64); err == nil{
+				if len(args) > 1 {
+					if v, err := strconv.ParseInt(args[1], 10, 64); err == nil {
 						child.CallChildNotForResult("CloseServer", int(v))
-					}else{
+					} else {
 						child.CallChildNotForResult("CloseServer", int(0))
 					}
-				}else{
+				} else {
 					child.CallChildNotForResult("CloseServer", int(0))
 				}
 			}
 		default:
 			child, err := clusterserver.GlobalMaster.Childs.GetChild(args[0])
-			if err != nil{
+			if err != nil {
 				return fmt.Sprintf("no sush node: %s.", args[0])
-			}else{
-				if len(args) > 1{
-					if v, err := strconv.ParseInt(args[1], 10, 64); err == nil{
+			} else {
+				if len(args) > 1 {
+					if v, err := strconv.ParseInt(args[1], 10, 64); err == nil {
 						child.CallChildNotForResult("CloseServer", int(v))
-					}else{
+					} else {
 						child.CallChildNotForResult("CloseServer", int(0))
 					}
-				}else{
+				} else {
 					child.CallChildNotForResult("CloseServer", int(0))
 				}
 			}
@@ -62,48 +62,48 @@ func (this *CloseServerCommand)Run(args []string) string{
 type ReloadCfgCommand struct {
 }
 
-func NewReloadCfgCommand() *ReloadCfgCommand{
+func NewReloadCfgCommand() *ReloadCfgCommand {
 	return &ReloadCfgCommand{}
 }
-func (this *ReloadCfgCommand)Name()string{
+func (this *ReloadCfgCommand) Name() string {
 	return "reloadcfg"
 }
 
-func (this *ReloadCfgCommand)Help()string{
+func (this *ReloadCfgCommand) Help() string {
 	return fmt.Sprintf("reloadcfg:\r\n" +
 		"----------- all delay: 延迟delay秒时间重新加载所有节点的配置文件\r\n" +
 		"----------- node name delay:  延迟delay秒时间重新加载指定节点\r\n")
 }
 
-func (this *ReloadCfgCommand)Run(args []string) string{
-	if len(args) == 0{
+func (this *ReloadCfgCommand) Run(args []string) string {
+	if len(args) == 0 {
 		return this.Help()
-	}else{
+	} else {
 		switch args[0] {
 		case "all":
 			for _, child := range clusterserver.GlobalMaster.Childs.GetChilds() {
-				if len(args) > 1{
-					if v, err := strconv.ParseInt(args[1], 10, 64); err == nil{
+				if len(args) > 1 {
+					if v, err := strconv.ParseInt(args[1], 10, 64); err == nil {
 						child.CallChildNotForResult("ReloadConfig", int(v))
-					}else{
+					} else {
 						child.CallChildNotForResult("ReloadConfig", int(0))
 					}
-				}else{
+				} else {
 					child.CallChildNotForResult("ReloadConfig", int(0))
 				}
 			}
 		default:
 			child, err := clusterserver.GlobalMaster.Childs.GetChild(args[0])
-			if err != nil{
+			if err != nil {
 				return fmt.Sprintf("no sush node: %s.", args[0])
-			}else{
-				if len(args) > 1{
-					if v, err := strconv.ParseInt(args[1], 10, 64); err == nil{
+			} else {
+				if len(args) > 1 {
+					if v, err := strconv.ParseInt(args[1], 10, 64); err == nil {
 						child.CallChildNotForResult("ReloadConfig", int(v))
-					}else{
+					} else {
 						child.CallChildNotForResult("ReloadConfig", int(0))
 					}
-				}else{
+				} else {
 					child.CallChildNotForResult("ReloadConfig", int(0))
 				}
 			}

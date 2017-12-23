@@ -2,16 +2,16 @@ package fserver
 
 import (
 	"fmt"
-	"github.com/viphxin/xingo/fnet"
-	"github.com/viphxin/xingo/iface"
-	"github.com/viphxin/xingo/logger"
-	"github.com/viphxin/xingo/timer"
-	"github.com/viphxin/xingo/utils"
+	"github.com/jmesyan/xingo/fnet"
+	"github.com/jmesyan/xingo/iface"
+	"github.com/jmesyan/xingo/logger"
+	"github.com/jmesyan/xingo/timer"
+	"github.com/jmesyan/xingo/utils"
 	"net"
 	"os"
 	"os/signal"
-	"time"
 	"syscall"
+	"time"
 )
 
 func init() {
@@ -69,9 +69,9 @@ func (this *Server) handleConnection(conn *net.TCPConn) {
 	conn.SetKeepAlive(true)
 	// conn.SetDeadline(time.Now().Add(time.Minute * 2))
 	var fconn *fnet.Connection
-	if this.Protoc == nil{
+	if this.Protoc == nil {
 		fconn = fnet.NewConnection(conn, this.GenNum.GetUint32(), utils.GlobalObject.Protoc)
-	}else{
+	} else {
 		fconn = fnet.NewConnection(conn, this.GenNum.GetUint32(), this.Protoc)
 	}
 	fconn.SetProperty(fnet.XINGO_CONN_PROPERTY_NAME, this.Name)
@@ -83,7 +83,7 @@ func (this *Server) Start() {
 	go func() {
 		this.Protoc.InitWorker(utils.GlobalObject.PoolSize)
 		tcpAddr, err := net.ResolveTCPAddr(this.IPVersion, fmt.Sprintf("%s:%d", this.IP, this.Port))
-		if err != nil{
+		if err != nil {
 			logger.Fatal("ResolveTCPAddr err: ", err)
 			return
 		}

@@ -3,23 +3,23 @@ package cluster
 import (
 	"encoding/json"
 	"errors"
+	"github.com/jmesyan/xingo/logger"
 	"io/ioutil"
-	"github.com/viphxin/xingo/logger"
 )
 
 var cfgpath string
 
 type ClusterServerConf struct {
-	Name     string
-	Host     string
-	RootPort int
-	Http     []interface{} //[port, staticfile_path]
-	Https    []interface{} //[port, certFile, keyFile, staticfile_path]
-	NetPort  int
+	Name      string
+	Host      string
+	RootPort  int
+	Http      []interface{} //[port, staticfile_path]
+	Https     []interface{} //[port, certFile, keyFile, staticfile_path]
+	NetPort   int
 	DebugPort int //telnet port
-	Remotes  []string
-	Module   string
-	Log      string
+	Remotes   []string
+	Module    string
+	Log       string
 }
 
 type ClusterConf struct {
@@ -70,7 +70,7 @@ func (this *ClusterConf) GetChildsByName(name string) []string {
 	return names
 }
 
-func (this *ClusterConf)Reload(){
+func (this *ClusterConf) Reload() {
 	//集群服务器配置信息
 	data, err := ioutil.ReadFile(cfgpath)
 	if err != nil {

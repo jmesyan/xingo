@@ -1,10 +1,10 @@
 package timer
 
 import (
-	"github.com/viphxin/xingo/logger"
+	"github.com/jmesyan/xingo/logger"
+	"math"
 	"sync"
 	"time"
-	"math"
 )
 
 /*
@@ -18,14 +18,14 @@ const (
 	//默认最大触发队列缓冲大小
 	TRIGGERMAX = 1024
 	//默认hashwheel分级
-	LEVEL     =  12
+	LEVEL = 12
 )
 
 func UnixTS() int64 {
 	return time.Now().UnixNano() / 1e6
 }
 
-type ParamNull struct {}
+type ParamNull struct{}
 
 type SafeTimer struct {
 	//延迟调用的函数
@@ -54,7 +54,7 @@ type SafeTimerScheduel struct {
 
 func NewSafeTimerScheduel() *SafeTimerScheduel {
 	scheduel := &SafeTimerScheduel{
-		hashwheel:       NewHashWheel("wheel_hours", LEVEL, 3600*1e3, TIMERLEN),
+		hashwheel:   NewHashWheel("wheel_hours", LEVEL, 3600*1e3, TIMERLEN),
 		idGen:       0,
 		triggerChan: make(chan *DelayCall, TRIGGERMAX),
 	}
@@ -84,9 +84,9 @@ func (this *SafeTimerScheduel) CreateTimer(delay int64, f func(v ...interface{})
 			f:    f,
 			args: args,
 		}))
-	if err != nil{
+	if err != nil {
 		return 0, err
-	}else{
+	} else {
 		return this.idGen, nil
 	}
 }
@@ -102,7 +102,7 @@ func (this *SafeTimerScheduel) StartScheduelLoop() {
 		//trigger
 		for _, v := range triggerList {
 			//logger.Debug("want call: ", v.unixts, ".real call: ", UnixTS(), ".ErrorMS: ", UnixTS()-v.unixts)
-			if math.Abs(float64(UnixTS()-v.unixts)) > float64(10){
+			if math.Abs(float64(UnixTS()-v.unixts)) > float64(10) {
 				logger.Error("want call: ", v.unixts, ".real call: ", UnixTS(), ".ErrorMS: ", UnixTS()-v.unixts)
 			}
 			this.triggerChan <- v.delayCall

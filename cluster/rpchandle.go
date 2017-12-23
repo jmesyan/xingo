@@ -5,8 +5,8 @@ package cluster
 */
 import (
 	"fmt"
-	"github.com/viphxin/xingo/logger"
-	"github.com/viphxin/xingo/utils"
+	"github.com/jmesyan/xingo/logger"
+	"github.com/jmesyan/xingo/utils"
 	"math/rand"
 	"reflect"
 	"time"
@@ -95,19 +95,19 @@ func (this *RpcMsgHandle) AddRouter(router interface{}) {
 }
 
 func (this *RpcMsgHandle) StartWorkerLoop(poolSize int) {
-	if utils.GlobalObject.IsThreadSafeMode(){
-		this.TaskQueue[0] =  make(chan *RpcRequest, utils.GlobalObject.MaxWorkerLen)
-		go func(){
-			for{
+	if utils.GlobalObject.IsThreadSafeMode() {
+		this.TaskQueue[0] = make(chan *RpcRequest, utils.GlobalObject.MaxWorkerLen)
+		go func() {
+			for {
 				select {
-				case rpcRequest := <- this.TaskQueue[0]:
+				case rpcRequest := <-this.TaskQueue[0]:
 					this.DoMsg(rpcRequest)
-				case delayCall := <- utils.GlobalObject.GetSafeTimer().GetTriggerChannel():
+				case delayCall := <-utils.GlobalObject.GetSafeTimer().GetTriggerChannel():
 					delayCall.Call()
 				}
 			}
 		}()
-	}else{
+	} else {
 		for i := 0; i < poolSize; i += 1 {
 			c := make(chan *RpcRequest, utils.GlobalObject.MaxWorkerLen)
 			this.TaskQueue[i] = c

@@ -42,7 +42,7 @@ xingo golang游戏开发交流群：535378240<br>
 }
 ```
 示例架构图：
-![alt text](https://git.oschina.net/viphxin/xingo_cluster/raw/master/conf/xingo_cluster_架构.png)
+![alt text](https://git.oschina.net/jmesyan/xingo_cluster/raw/master/conf/xingo_cluster_架构.png)
 
 
 默认通信协议如下（支持自定义协议处理部分代码，支持灵活的重载协议部分代码）：<br>
@@ -84,7 +84,7 @@ Data  []byte 数据<br>
   xingo会自动注册FightingRouter中的方法处理对应消息<br>
   例如：msgId =1 则会寻找FightingRouter中的Func_1的方法从进行处理<br>
   具体使用请参考项目：<br>
-  帧同步服务器: https://github.com/viphxin/fighting<br>
-  mmo demo: https://git.oschina.net/viphxin/xingo_demo<br>
-  xingo_cluster demo: https://github.com/viphxin/xingo_cluster
+  帧同步服务器: https://github.com/jmesyan/fighting<br>
+  mmo demo: https://git.oschina.net/jmesyan/xingo_demo<br>
+  xingo_cluster demo: https://github.com/jmesyan/xingo_cluster
   

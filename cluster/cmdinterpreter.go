@@ -1,10 +1,10 @@
 package cluster
 
 import (
-	"github.com/viphxin/xingo/iface"
-	"github.com/viphxin/xingo/logger"
-	"strings"
 	"fmt"
+	"github.com/jmesyan/xingo/iface"
+	"github.com/jmesyan/xingo/logger"
+	"strings"
 )
 
 var (
@@ -15,66 +15,65 @@ type CommandInterpreter struct {
 	commands map[string]iface.ICommand
 }
 
-func NewCommandInterpreter() *CommandInterpreter{
+func NewCommandInterpreter() *CommandInterpreter {
 	interpreter := &CommandInterpreter{make(map[string]iface.ICommand)}
 	return interpreter
 }
 
-func (this *CommandInterpreter)AddCommand(cmd iface.ICommand){
+func (this *CommandInterpreter) AddCommand(cmd iface.ICommand) {
 	this.commands[cmd.Name()] = cmd
 	logger.Debug("add command ", cmd.Name())
 }
 
-func (this *CommandInterpreter)preExcute(rawCmdExp string) string{
+func (this *CommandInterpreter) preExcute(rawCmdExp string) string {
 	return strings.ToLower(strings.TrimSpace(rawCmdExp))
 }
 
-func (this *CommandInterpreter)IsQuitCmd(rawCmdExp string) bool{
+func (this *CommandInterpreter) IsQuitCmd(rawCmdExp string) bool {
 	cmdExp := this.preExcute(rawCmdExp)
-	for _, cmd := range QUIT_CMD{
-		if cmd == cmdExp{
+	for _, cmd := range QUIT_CMD {
+		if cmd == cmdExp {
 			return true
 		}
 	}
 	return false
 }
 
-func (this *CommandInterpreter)help() string{
+func (this *CommandInterpreter) help() string {
 	helpStr := "有关某个命令的详细信息，请键入 help 命令名"
-	for _, v := range this.commands{
+	for _, v := range this.commands {
 		helpStr = fmt.Sprintf("%s\r\n%s", helpStr, v.Help())
 	}
 	return helpStr
 }
 
-func (this *CommandInterpreter)Excute(rawCmdExp string) string{
-	defer func()string{
-		if err := recover(); err != nil{
+func (this *CommandInterpreter) Excute(rawCmdExp string) string {
+	defer func() string {
+		if err := recover(); err != nil {
 			logger.Error("invalid rawCmdExp: ", rawCmdExp)
 			return "invalid rawCmdExp: " + rawCmdExp
 		}
 		return "Unkown ERROR!!!"
 	}()
-	if rawCmdExp == ""{
+	if rawCmdExp == "" {
 		return ""
 	}
 	rawCmdExps := strings.Split(rawCmdExp, " ")
-	if len(rawCmdExps) == 0{
+	if len(rawCmdExps) == 0 {
 		return ""
 	}
 	cmdExps := make([]string, 0)
-	for _, cmd := range rawCmdExps{
+	for _, cmd := range rawCmdExps {
 		cmdExps = append(cmdExps, this.preExcute(cmd))
 	}
 
-	if command, ok := this.commands[cmdExps[0]]; ok{
+	if command, ok := this.commands[cmdExps[0]]; ok {
 		return command.Run(cmdExps[1:])
-	}else{
-		if cmdExps[0] == "help"{
+	} else {
+		if cmdExps[0] == "help" {
 			return this.help()
-		}else{
+		} else {
 			return "command not found."
 		}
 	}
 }
-

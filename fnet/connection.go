@@ -3,9 +3,9 @@ package fnet
 import (
 	"errors"
 	"fmt"
-	"github.com/viphxin/xingo/iface"
-	"github.com/viphxin/xingo/logger"
-	"github.com/viphxin/xingo/utils"
+	"github.com/jmesyan/xingo/iface"
+	"github.com/jmesyan/xingo/logger"
+	"github.com/jmesyan/xingo/utils"
 	"net"
 	"sync"
 	"time"
@@ -13,7 +13,7 @@ import (
 
 const (
 	XINGO_CONN_PROPERTY_CTIME = "xingo_ctime"
-	XINGO_CONN_PROPERTY_NAME = "xingo_tcpserver_name"
+	XINGO_CONN_PROPERTY_NAME  = "xingo_tcpserver_name"
 )
 
 type Connection struct {
@@ -47,10 +47,10 @@ func NewConnection(conn *net.TCPConn, sessionId uint32, protoc iface.IServerProt
 func (this *Connection) Start() {
 	//add to connectionmsg
 	serverName, err := this.GetProperty(XINGO_CONN_PROPERTY_NAME)
-	if err != nil{
+	if err != nil {
 		logger.Error("not find server name in GlobalObject.")
 		return
-	}else{
+	} else {
 		serverNameStr := serverName.(string)
 		utils.GlobalObject.TcpServers[serverNameStr].GetConnectionMgr().Add(this)
 	}
@@ -65,10 +65,10 @@ func (this *Connection) Stop() {
 	this.sendtagGuard.Lock()
 	defer this.sendtagGuard.Unlock()
 
-	if this.isClosed{
+	if this.isClosed {
 		return
 	}
-	 
+
 	this.Conn.Close()
 	this.ExtSendChan <- true
 	this.isClosed = true
@@ -76,10 +76,10 @@ func (this *Connection) Stop() {
 	go this.Protoc.OnConnectionLost(this)
 	//remove to connectionmsg
 	serverName, err := this.GetProperty(XINGO_CONN_PROPERTY_NAME)
-	if err != nil{
+	if err != nil {
 		logger.Error("not find server name in GlobalObject.")
 		return
-	}else{
+	} else {
 		serverNameStr := serverName.(string)
 		utils.GlobalObject.TcpServers[serverNameStr].GetConnectionMgr().Remove(this)
 	}
