@@ -155,7 +155,6 @@ func (this *ClusterServer) StartClusterServer() {
 	if len(serverconf.Http) > 0 {
 		//staticfile handel
 		if len(serverconf.Http) == 2 {
-			// this.httpServerMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(serverconf.Http[1].(string)))))
 			this.httpRouter.ServeFiles("/static", http.Dir(serverconf.Http[1].(string)))
 		}
 		port := serverconf.Http[0].(float64)
@@ -165,7 +164,6 @@ func (this *ClusterServer) StartClusterServer() {
 	} else if len(serverconf.Https) > 2 {
 		//staticfile handel
 		if len(serverconf.Https) == 4 {
-			// this.httpServerMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(serverconf.Https[3].(string)))))
 			this.httpRouter.ServeFiles("/static", http.Dir(serverconf.Http[3].(string)))
 		}
 		port := serverconf.Http[0].(float64)
