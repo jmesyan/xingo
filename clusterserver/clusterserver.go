@@ -2,6 +2,7 @@ package clusterserver
 
 import (
 	"fmt"
+	"github.com/celrenheit/lion"
 	"github.com/jmesyan/xingo/cluster"
 	"github.com/jmesyan/xingo/fnet"
 	"github.com/jmesyan/xingo/fserver"
@@ -11,11 +12,9 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"reflect"
 	"strings"
 	"sync"
 	"syscall"
-	"time"
 )
 
 type ClusterServer struct {
@@ -23,7 +22,7 @@ type ClusterServer struct {
 	RemoteNodesMgr *cluster.ChildMgr //子节点有
 	ChildsMgr      *cluster.ChildMgr //root节点有
 	MasterObj      *fnet.TcpClient
-	httpServerMux  *http.ServeMux
+	httpRouter     *lion.Router
 	NetServer      iface.Iserver
 	RootServer     iface.Iserver
 	TelnetServer   iface.Iserver
@@ -79,7 +78,7 @@ func NewClusterServer(name, path string) *ClusterServer {
 		RemoteNodesMgr: cluster.NewChildMgr(),
 		ChildsMgr:      cluster.NewChildMgr(),
 		modules:        make(map[string][]interface{}, 0),
-		httpServerMux:  http.NewServeMux(),
+		httpRouter:     lion.New(),
 	}
 
 	serverconf, ok := GlobalClusterServer.Cconf.Servers[name]
@@ -156,32 +155,22 @@ func (this *ClusterServer) StartClusterServer() {
 	if len(serverconf.Http) > 0 {
 		//staticfile handel
 		if len(serverconf.Http) == 2 {
-			this.httpServerMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(serverconf.Http[1].(string)))))
+			// this.httpServerMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(serverconf.Http[1].(string)))))
+			this.httpRouter.ServeFiles("/static", http.Dir(serverconf.Http[1].(string)))
 		}
-		httpserver := &http.Server{
-			Addr:           fmt.Sprintf(":%d", int(serverconf.Http[0].(float64))),
-			Handler:        this.httpServerMux,
-			ReadTimeout:    5 * time.Second,
-			WriteTimeout:   5 * time.Second,
-			MaxHeaderBytes: 1 << 20, //1M
-		}
-		httpserver.SetKeepAlivesEnabled(true)
-		go httpserver.ListenAndServe()
+		port := serverconf.Http[0].(float64)
+		raddr := fmt.Sprintf(":%v", port)
+		this.httpRouter.Run(raddr)
 		logger.Info(fmt.Sprintf("http://%s:%d start", serverconf.Host, int(serverconf.Http[0].(float64))))
 	} else if len(serverconf.Https) > 2 {
 		//staticfile handel
 		if len(serverconf.Https) == 4 {
-			this.httpServerMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(serverconf.Https[3].(string)))))
+			// this.httpServerMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir(serverconf.Https[3].(string)))))
+			this.httpRouter.ServeFiles("/static", http.Dir(serverconf.Http[3].(string)))
 		}
-		httpserver := &http.Server{
-			Addr:           fmt.Sprintf(":%d", int(serverconf.Https[0].(float64))),
-			Handler:        this.httpServerMux,
-			ReadTimeout:    5 * time.Second,
-			WriteTimeout:   5 * time.Second,
-			MaxHeaderBytes: 1 << 20, //1M
-		}
-		httpserver.SetKeepAlivesEnabled(true)
-		go httpserver.ListenAndServeTLS(serverconf.Https[1].(string), serverconf.Https[2].(string))
+		port := serverconf.Http[0].(float64)
+		raddr := fmt.Sprintf(":%v", port)
+		this.httpRouter.RunTLS(raddr, serverconf.Https[1].(string), serverconf.Https[2].(string))
 		logger.Info(fmt.Sprintf("http://%s:%d start", serverconf.Host, int(serverconf.Https[0].(float64))))
 	}
 	//tcp server
@@ -355,13 +344,6 @@ func (this *ClusterServer) AddModule(mname string, apimodule interface{}, httpmo
 注册http的api到分布式服务器
 */
 func (this *ClusterServer) AddHttpRouter(router interface{}) {
-	value := reflect.ValueOf(router)
-	tp := value.Type()
-	for i := 0; i < value.NumMethod(); i += 1 {
-		name := tp.Method(i).Name
-		uri := fmt.Sprintf("/%s", strings.ToLower(strings.Replace(name, "Handle", "", 1)))
-		this.httpServerMux.HandleFunc(uri,
-			utils.HttpRequestWrap(uri, value.Method(i).Interface().(func(http.ResponseWriter, *http.Request))))
-		logger.Info("add http url: " + uri)
-	}
+	r := router.(iface.IWeb)
+	r.Ready(this.httpRouter)
 }
